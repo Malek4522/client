@@ -5,9 +5,16 @@ import 'utils/app_colors.dart';
 import 'utils/app_localizations.dart';
 import 'layouts/responsive_layout.dart';
 import 'pages/login_page.dart';
+import 'config/env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Log the API URL in development mode
+  if (Env.isDevelopment) {
+    debugPrint('API URL: ${Env.apiUrl}');
+  }
+  
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
   final languageCode = prefs.getString('languageCode') ?? 'en';
@@ -34,8 +41,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late bool isDarkMode;
   late Locale _locale;
-  // Comment out login state
-  // bool _isLoggedIn = false;
+  bool _isLoggedIn = false;
 
   @override
   void initState() { 
@@ -62,7 +68,7 @@ class _MyAppState extends State<MyApp> {
 
   void handleLogout() {
     setState(() {
-      // _isLoggedIn = false;
+      _isLoggedIn = false;
     });
   }
 
@@ -157,25 +163,17 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-      home: ResponsiveLayout(
-        isDarkMode: isDarkMode,
-        onThemeToggle: toggleTheme,
-        currentLocale: _locale,
-        onLocaleChange: setLocale,
-        onLogout: handleLogout,
-      ),
-      // Comment out login condition
-      // home: _isLoggedIn 
-      //     ? ResponsiveLayout(
-      //         isDarkMode: isDarkMode,
-      //         onThemeToggle: toggleTheme,
-      //         currentLocale: _locale,
-      //         onLocaleChange: setLocale,
-      //         onLogout: handleLogout,
-      //       )
-      //     : LoginPage(
-      //         onLoginSuccess: () => setState(() => _isLoggedIn = true),
-      //       ),
+      home: _isLoggedIn 
+          ? ResponsiveLayout(
+              isDarkMode: isDarkMode,
+              onThemeToggle: toggleTheme,
+              currentLocale: _locale,
+              onLocaleChange: setLocale,
+              onLogout: handleLogout,
+            )
+          : LoginPage(
+              onLoginSuccess: () => setState(() => _isLoggedIn = true),
+            ),
     );
   }
 }
